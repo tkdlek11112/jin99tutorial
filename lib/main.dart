@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'api.dart' ;
+import 'model.dart';
 
 void main() {
   runApp(MyApp());
@@ -38,7 +41,6 @@ class MyApp extends StatelessWidget {
                 ),
               ],
             )),
-            FavoriteWidget(),
           ],
         )
     );
@@ -81,15 +83,7 @@ class MyApp extends StatelessWidget {
               titleSection,
               buttonSection,
               textSection,
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TabBoxA(),
-                  ParentWidget(),
-                  MixParentWidget()
-                ],
-              )
+              ApiTestWidget()
             ],
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,// This trailing comma makes auto-formatting nicer for build methods.
@@ -123,251 +117,61 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class FavoriteWidget extends StatefulWidget{
+class ApiTestWidget extends StatefulWidget{
   @override
   State<StatefulWidget> createState() {
-    return _FavoriteWidgetState();
+    return _ApiTestWidgetState();
   }
-  // @override
-  // _FavoriteWidgetState createState() => _FavoriteWidgetState();
+
 }
 
-class _FavoriteWidgetState extends State<FavoriteWidget>{
-  bool _isfavorited = true;
-  int _favoriteCount = 41;
-
-  void _toggleFavorite(){
-    setState(() {
-      if(_isfavorited){
-        _favoriteCount --;
-      }else{
-        _favoriteCount ++;
-      }
-      _isfavorited = !_isfavorited;
-    });
+class _ApiTestWidgetState extends State<ApiTestWidget>{
+  late Future<Album> futureAlbum;
+  @override
+  void initState(){
+    super.initState();
+    futureAlbum = fetchAlbum();
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: EdgeInsets.all(0),
-          child: IconButton(
-            padding: EdgeInsets.all(0),
-            alignment: Alignment.centerRight,
-            icon: (_isfavorited ? Icon(Icons.star) : Icon(Icons.star_border)),
-            color: Colors.red[500],
-            onPressed: _toggleFavorite,
-          ),
-        ),
-        SizedBox(
-          width: 18,
-            child: Container(
-              child:Text('$_favoriteCount'),
-            ),
-        )
-      ],
-    );
-  }
-}
-
-class TabBoxA extends StatefulWidget{
-  @override
-  State<StatefulWidget> createState() {
-    return _TabBoxAState();
-  }
-}
-
-class _TabBoxAState extends State<TabBoxA>{
-  bool _active = true;
-
-  void _onTap(){
-    setState(() {
-      _active = !_active;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return GestureDetector(
-      onTap: _onTap,
-      child: Container(
-        width: 200,
-        height: 200,
-        child: Center(
-          child: Text(
-            _active ? 'Active' : 'Inactive',
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.white,
-            ),
-          ),
-        ),
-        decoration: BoxDecoration(
-          color: _active ? Colors.green : Colors.grey,
-        ),
-      ),
-    );
-  }
-}
 
 
-class ParentWidget extends StatefulWidget{
-  @override
-  State<StatefulWidget> createState() {
-    return _ParentWidgetState();
-  }
-
-}
-
-class _ParentWidgetState extends State<ParentWidget>{
-  bool _active = true;
-
-  void _onTap(bool newValue){
-    setState(() {
-      _active = newValue;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      child: TabBoxB(
-        active: _active,
-          onChanged: _onTap,
-      ),
-    );
-  }
-}
+      width: 300,
+      height: 300,
+      child: Column(
+        children: [
+          ElevatedButton(onPressed: (){
+            setState(() {
+              futureAlbum = fetchAlbum2();
+            });
+          }, child: const Text('change')),
+          FutureBuilder<Album>(
+            future: futureAlbum,
+            builder: (context, snapshot){
+              if(snapshot.hasData){
+                return Container(
+                  padding: EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(snapshot.data!.id.toString()),
+                      Text(snapshot.data!.userId.toString()),
+                      Text(snapshot.data!.title.toString()),
 
-
-class TabBoxB extends StatelessWidget{
-  TabBoxB({Key? key, this.active: true, required this.onChanged}):super(key:key);
-
-  final bool active;
-  final ValueChanged<bool> onChanged;
-
-  void _onTap(){
-    onChanged(!active);
-  }
-
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _onTap,
-      child: Container(
-        width: 200,
-        height: 200,
-        child: Center(
-          child: Text(
-            active ? 'Active' : 'Inactive',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20
-            ),
+                    ],
+                  ),
+                );
+              }else if(snapshot.hasError){
+                return Text('${snapshot.error}');
+              }
+              return const CircularProgressIndicator();
+            },
           ),
-        ),
-        decoration: BoxDecoration(
-          color: active ? Colors.green : Colors.grey,
-        ),
-      ),
+        ],
+      )
     );
-  }
-}
-
-
-class MixParentWidget extends StatefulWidget{
-  @override
-  State<StatefulWidget> createState() {
-    return _MixParentWidgetState();
-  }
-
-}
-
-class _MixParentWidgetState extends State<MixParentWidget>{
-  bool _active = true;
-
-  void _onTap(bool newValue){
-    setState(() {
-      _active = newValue;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TapBoxC(
-      active: _active,
-      onChanged: _onTap
-    );
-  }
-}
-
-class TapBoxC extends StatefulWidget{
-  TapBoxC({Key? key, this.active: false, required this.onChanged}):super(key: key);
-
-  final bool active;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  State<StatefulWidget> createState() {
-    return _TabBoxCState();
-  }
-}
-
-class _TabBoxCState extends State<TapBoxC>{
-  bool _highLight = false;
-
-  void _handleTapDown(TapDownDetails details){
-    setState(() {
-      _highLight = true;
-    });
-  }
-
-  void _handleTapUp(TapUpDetails details){
-    setState(() {
-      _highLight = false;
-    });
-  }
-
-  void _handleTapCancel(){
-    setState(() {
-      _highLight = false;
-    });
-  }
-
-  void _handleTap(){
-    widget.onChanged(!widget.active);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      onTap: _handleTap,
-      child: Container(
-        width: 200,
-        height: 200,
-        child: Center(
-          child: Text(
-            widget.active ? 'Active' : 'Inactive',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-            ),
-          ),
-        ),
-        decoration: BoxDecoration(
-          color: widget.active ? Colors.green : Colors.grey,
-          border: _highLight ? Border.all(
-            color: Colors.teal[700]!,
-            width: 10) : null
-          ),
-        ),
-      );
   }
 }
