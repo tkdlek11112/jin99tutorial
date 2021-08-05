@@ -20,4 +20,10 @@ class PostsLoaded extends PostsState {
   List<Object> get props => [posts];
 }
 
-class PostsError extends PostsState {}
+class PostsError extends PostsState {
+  final String message;
+  const PostsError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}

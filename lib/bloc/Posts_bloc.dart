@@ -11,18 +11,20 @@ class PostsBloc extends Bloc<PostsEvent, PostsState>{
   
   PostsBloc({required this.repository}) : super(PostsEmpty());
 
-  //PostsState get initialState => PostsEmpty();
+  PostsState get initialState => PostsEmpty();
 
   
   @override
   Stream<PostsState> mapEventToState(PostsEvent event) async*{
     if (event is FetchPosts){
       yield PostsLoading();
+      print('로딩');
       try{
-        final Posts posts = await repository.fetchPosts();
+        final posts = await repository.fetchPosts();
+        print(posts);
         yield PostsLoaded(posts: posts);
       }catch(_){
-        yield PostsError();
+        yield PostsError("데이터 읽다가 뻑남");
       }
     }
   }

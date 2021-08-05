@@ -112,7 +112,10 @@ class MyApp extends StatelessWidget {
               buttonSection,
               textSection,
               ApiTestWidget(),
-              HomePage()
+              BlocProvider(
+                  create: (context) => PostsBloc(repository: repository),
+                  child: HomePage()
+              )
             ],
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation
@@ -214,16 +217,7 @@ class HomePage extends StatelessWidget {
           );
         }
         if (state is PostsLoaded) {
-          return ListTile(
-            leading: Text(
-              '${state.posts.userId}',
-              style: TextStyle(fontSize: 10.0),
-            ),
-            title: Text(state.posts.title),
-            isThreeLine: true,
-            subtitle: Text(state.posts.body),
-            dense: true,
-          );
+          return _buildPost(context, state.posts);
         }
         return Center(
           child: CircularProgressIndicator(),
@@ -231,4 +225,33 @@ class HomePage extends StatelessWidget {
       },
     );
   }
+
+  Widget _buildPost(BuildContext context, Posts model){
+    return ListView.builder(
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
+      itemCount: model.posts.length,
+      itemBuilder: (context, index) {
+        return Container(
+          margin: EdgeInsets.all(8.0),
+          child: Card(
+            child: Container(
+              margin: EdgeInsets.all(8.0),
+              child: Column(
+                children: <Widget>[
+                  Text("userid : ${model.posts[index].userId}"),
+                  Text("id : ${model.posts[index].id}"),
+                  Text("title : ${model.posts[index].title}"),
+                  Text("body : ${model.posts[index].body}")
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+  }
 }
+
+

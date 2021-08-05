@@ -16,26 +16,39 @@ class Album{
 }
 
 
-class Posts extends Equatable{
-  final userId;
-  final id;
-  final String title;
-  final String body;
+class Posts{
+  late List<Post> posts;
 
-  const Posts({this.userId, this.id, required this.title, required this.body});
+  Posts({required this.posts});
 
-  @override
-  List<Object> get props => [userId, id, title, body];
-
-  static Posts fromJson(dynamic json){
-    return Posts(
-      userId:json['userId'], // 여긴 왜 _userId지?
-      id:json['id'],
-      title:json['title'],
-      body:json['body'],
-    );
+  Posts.fromJson(List<dynamic> json){
+    posts = new List<Post>.empty(growable: true);
+    json.forEach((value) {
+      print(value);
+      posts.add(new Post.fromJson(value));
+    });
   }
 
-  @override
-  String toString() => 'Posts {userId:$userId}';
+}
+
+class Post{
+  int? userId;
+  int? id;
+  String? title;
+  String? body;
+
+  Post(
+      {required this.userId,
+        required this.id,
+        required this.title,
+        required this.body});
+
+  Post.fromJson(Map<String, dynamic> json){
+    userId=json['userId'];
+    id=json['id'];
+    title=json['title'];
+    body=json['body'];
+  }
+
+
 }
